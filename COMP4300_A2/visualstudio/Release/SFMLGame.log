@@ -1,0 +1,6 @@
+﻿  Entity.cpp
+  EntityManager.cpp
+  Game.cpp
+  main.cpp
+  Vec2.cpp
+LINK : fatal error LNK1181: cannot open input file 'sfml-audio.lib'
