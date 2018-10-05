@@ -1,6 +1,1 @@
-﻿  Entity.cpp
-  EntityManager.cpp
-  Game.cpp
-  main.cpp
-  Vec2.cpp
-LINK : fatal error LNK1181: cannot open input file 'sfml-audio.lib'
+﻿  SFMLGame.vcxproj -> D:\Desktop\cs4300\newGit\cs4300\COMP4300_A2\visualstudio\../bin/SFMLGame.exe
