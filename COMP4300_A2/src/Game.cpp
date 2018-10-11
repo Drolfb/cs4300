@@ -118,6 +118,7 @@ void Game::spawnEnemy()
 	enemy->cScore = new CScore(vertices*100);
 }
 
+//	When an enemy is destroyed it calls this method which spawns smaller versions of the same shape around it.
 void Game::spawnSmallEnemies(std::shared_ptr<Entity> e)
 {
 	sf::CircleShape circle = e->cShape->circle;
@@ -135,6 +136,7 @@ void Game::spawnSmallEnemies(std::shared_ptr<Entity> e)
 	}
 }
 
+/
 void Game::spawnBullet(std::shared_ptr<Entity> entity, const Vec2 & target)
 {
 	float angle = atan2f((target - entity->cTransform->pos).x, (target - entity->cTransform->pos).y);
@@ -144,6 +146,8 @@ void Game::spawnBullet(std::shared_ptr<Entity> entity, const Vec2 & target)
 	bullet->cCollision	= new CCollision(5);
 	bullet->cLifespan = new CLifespan(m_bulletConfig.L);
 }
+
+//	Method for creating the special weapon around the player.
 
 void Game::spawnSpecialWeapon(std::shared_ptr<Entity> entity)
 {
@@ -161,6 +165,7 @@ void Game::spawnSpecialWeapon(std::shared_ptr<Entity> entity)
 	}
 }
 
+//	Player movement based on input given.
 void Game::sMovement()
 {
 	for (auto p : m_entities.getEntities("player")) 
@@ -372,6 +377,7 @@ void Game::sUserInput()
             }
         }
 
+	// this event is triggered when a key is released. P will pause the game and ESC will exit it.
         if (event.type == sf::Event::KeyReleased)
         {
             switch (event.key.code)
@@ -397,6 +403,7 @@ void Game::sUserInput()
             }
         }
 
+	// Calls the bullet spawn method on left click.
         if (event.type == sf::Event::MouseButtonPressed)
         {
             if (event.mouseButton.button == sf::Mouse::Left)
@@ -407,6 +414,7 @@ void Game::sUserInput()
 				}
             }
 
+	// Calls the special weapon attack on right click.	
             if (event.mouseButton.button == sf::Mouse::Right)
             {
 				if (!m_paused)
