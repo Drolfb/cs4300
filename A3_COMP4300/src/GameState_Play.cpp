@@ -45,9 +45,6 @@ void GameState_Play::loadLevel(const std::string & filename)
     // reset the entity manager every time we load a level
     m_entityManager = EntityManager();
     
-    // TODO: read in the level file and add the appropriate entities
-    //       use the PlayerConfig struct m_playerConfig to store player properties
-    //       this struct is defined at the top of GameState_Play.h
 	std::ifstream level;
 	std::string input, anim;
 	int x,y;
@@ -79,8 +76,8 @@ void GameState_Play::spawnPlayer()
 {
     // here is a sample player entity which you can use to construct other entities
     m_player = m_entityManager.addEntity("player");
-    m_player->addComponent<CTransform>(Vec2(200, 200));
-    m_player->addComponent<CBoundingBox>(Vec2(48, 48));
+    m_player->addComponent<CTransform>(Vec2(m_playerConfig.X, m_playerConfig.Y));
+    m_player->addComponent<CBoundingBox>(Vec2(m_playerConfig.CX, m_playerConfig.CY));
     m_player->addComponent<CAnimation>(m_game.getAssets().getAnimation("Stand"), true);
 	m_player->addComponent<CInput>();
         
@@ -90,6 +87,14 @@ void GameState_Play::spawnPlayer()
 void GameState_Play::spawnBullet(std::shared_ptr<Entity> entity)
 {
     // TODO: this should spawn a bullet at the given entity, going in the direction the entity is facing
+	auto bullet = m_entityManager.addEntity("bullet");
+	auto entityTrans = entity->getComponent<CTransform>();
+    bullet->addComponent<CTransform>(entityTrans->pos);
+	auto bulletTrans = bullet->getComponent<CTransform>();
+	bulletTrans->speed.x = m_playerConfig.SPEED * 3 * entityTrans->scale.x;
+	bulletTrans->scale.x = entityTrans->scale.x;
+    bullet->addComponent<CAnimation>(m_game.getAssets().getAnimation(m_playerConfig.WEAPON), true);
+    bullet->addComponent<CBoundingBox>(m_game.getAssets().getAnimation(m_playerConfig.WEAPON).getSize());
 }
 
 void GameState_Play::update()
@@ -119,16 +124,31 @@ void GameState_Play::sMovement()
 		m_player->getComponent<CTransform>()->speed = Vec2(0,0);
 
 		if (input->up) {
-			transform->speed.y += 5;
+			transform->speed.y += m_playerConfig.SPEED;
 		}
 		if (input->down) {
-			transform->speed.y -= 5;
+			transform->speed.y -= m_playerConfig.SPEED;
 		}
 		if (input->left) {
-			transform->speed.x -= 5;
+			transform->speed.x -= m_playerConfig.SPEED;
+			transform->scale.x = -1;
 		}
 		if (input->right) {
-			transform->speed.x += 5;
+			transform->speed.x += m_playerConfig.SPEED;
+			transform->scale.x = 1;
+		}
+		if (input->shoot && input->canShoot) {
+			input->canShoot = false;
+			spawnBullet(m_player);
+		}
+
+		for (auto b : m_entityManager.getEntities("bullet"))
+		{
+			if (b->hasComponent<CTransform>())
+			{
+				auto t = b->getComponent<CTransform>();
+				t->pos += t->speed;
+			}
 		}
 
 		transform->prevPos = transform->pos;
@@ -208,6 +228,18 @@ void GameState_Play::sUserInput()
 					} 
 					break;
 				}
+				case sf::Keyboard::Space:		
+				{ 
+					if (m_player->hasComponent<CInput>()) 
+					{ 
+						auto playerInput = m_player->getComponent<CInput>();
+						if (playerInput->canShoot)
+						{
+							playerInput->shoot = true; 
+						}
+					} 
+					break;
+				}
             }
         }
 
@@ -245,6 +277,16 @@ void GameState_Play::sUserInput()
 					if (m_player->hasComponent<CInput>()) 
 					{ 
 						m_player->getComponent<CInput>()->right = false; 
+					} 
+					break;
+				}
+				case sf::Keyboard::Space:		
+				{ 
+					if (m_player->hasComponent<CInput>()) 
+					{ 
+						auto playerInput = m_player->getComponent<CInput>();
+						playerInput->shoot = false; 
+						playerInput->canShoot = true;
 					} 
 					break;
 				}
