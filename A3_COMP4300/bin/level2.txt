@@ -1,0 +1,2 @@
+Tile Ground 200 200
+Player 128 600 48 48 5 20 20 -0.75 Buster
